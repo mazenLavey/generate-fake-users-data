@@ -1,7 +1,8 @@
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { faker as fakerAR } from '@faker-js/faker/locale/ar';
 import { faker as fakerEN } from '@faker-js/faker/locale/en';
 import { faker as fakerRU } from '@faker-js/faker/locale/ru';
+import { faker } from '@faker-js/faker';
 import { UserData, LocalizationType } from 'types/interfaces';
 import { Faker } from '@faker-js/faker';
 
@@ -10,41 +11,51 @@ type Props = {
 }
 
 type SelectedOptions = {
-    seed: number,
     localization: LocalizationType,
     errorRate: number
 }
 
 type FakeDataContextType = {
     fakeUsers: UserData[],
-    generateFakeUsers: (seeds: number, localization: LocalizationType, errorRate: number) => void,
-    getMoreFakeUsers: (records: number) => void
+    generateFakeUsers: (localization: LocalizationType, errorRate: number) => void,
+    getMoreFakeUsers: (records: number) => void,
+    setSeedValue: (seed: number) => void,
+    globalSeed: number
 }
 
 const FakeDataContext = createContext<FakeDataContextType>({
     fakeUsers: [],
-    generateFakeUsers: (seeds, localization, errorRate) => { },
-    getMoreFakeUsers: (records) => { }
+    generateFakeUsers: (localization, errorRate) => { },
+    getMoreFakeUsers: (records) => { },
+    setSeedValue: (seed) => { },
+    globalSeed: 0
 })
 
 const FakeDataProvider: React.FC<Props> = ({ children }) => {
     const [fakeUsers, setFakeUsers] = useState<UserData[]>([])
     const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>({
-        seed: 0,
         localization: 'en',
         errorRate: 0
     })
+    const [globalSeed, setGlobalSeed] = useState<number>(0)
 
+    faker.seed(globalSeed)
 
-    const generateFakeUsers = (seed: number, localization: LocalizationType, errorRate: number) => {
+    const setSeedValue = (seed: number) =>{
+        setGlobalSeed(seed)
+    }
+
+    useEffect(()=>{
+        generateFakeUsers(selectedOptions.localization)
+    }, [globalSeed])
+
+    const generateFakeUsers = (localization: LocalizationType, errorRate: number = 0) => {
         const fakerInstance = getFakerInstance(localization);
         setSelectedOptions(() => {
-            return { seed, localization, errorRate }
+            return { localization, errorRate }
         });
-
+        
         const users: UserData[] = [];
-        fakerInstance.seed(seed)
-
         for (let i = 0; i < 20; i++) {
             const user = generateUser(fakerInstance, errorRate);
             users.push(user);
@@ -57,10 +68,8 @@ const FakeDataProvider: React.FC<Props> = ({ children }) => {
         const fakerInstance = getFakerInstance(selectedOptions.localization);
 
         const users: UserData[] = [];
-        fakerInstance.seed(selectedOptions.seed)
 
         const endIndex = fakeUsers.length + records;
-
         for (let i = 0; i < endIndex; i++) {
             users.push(generateUser(fakerInstance, selectedOptions.errorRate));
         }
@@ -68,7 +77,7 @@ const FakeDataProvider: React.FC<Props> = ({ children }) => {
         setFakeUsers(users);
     }
 
-    const getFakerInstance = (localization: LocalizationType) => {
+    const getFakerInstance = (localization?: LocalizationType) => {
         switch (localization) {
             case 'ar':
                 return fakerAR;
@@ -148,7 +157,7 @@ const FakeDataProvider: React.FC<Props> = ({ children }) => {
     }
 
     return (
-        <FakeDataContext.Provider value={{ fakeUsers, generateFakeUsers, getMoreFakeUsers }}>
+        <FakeDataContext.Provider value={{ fakeUsers, generateFakeUsers, getMoreFakeUsers, setSeedValue, globalSeed }}>
             {children}
         </FakeDataContext.Provider>
     )

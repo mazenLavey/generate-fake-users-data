@@ -16,22 +16,26 @@ import './index.css';
 
 type Options = {
     local: LocalizationType,
-    seed: number,
     errorPerRecord: number
 }
 
 const ToolsBar: React.FC = () => {
+    const { generateFakeUsers, fakeUsers, setSeedValue, globalSeed } = useContext(FakeDataContext);
+
     const [isFirstRender, setIsFirstRender] = useState(true);
-    const { generateFakeUsers, fakeUsers } = useContext(FakeDataContext)
+    const [seed, setSeed] = useState<number>(globalSeed);
     const [options, setOptions] = useState<Options>({
         local: 'en',
-        seed: 0,
         errorPerRecord: 0
-    })
-
+    });
+    
+    const generateData = (localValue: LocalizationType, errorRate: number) => {
+        generateFakeUsers(localValue, errorRate);
+    }
+    
     useEffect(()=>{
         if(!isFirstRender) {
-            generateData(options.seed, options.local, options.errorPerRecord);
+            generateData(options.local, options.errorPerRecord);
         }
     }, [options, isFirstRender])
 
@@ -46,24 +50,22 @@ const ToolsBar: React.FC = () => {
         })
     }
 
+    const handleSeed = (e: React.ChangeEvent<HTMLInputElement>) =>{
+        const seedValue:number = Number.parseInt(e.target.value)
+        setSeedValue(seedValue);
+        setSeed(seedValue);
+    }
+
     const handleBtn = (): void => {
         const seedNum = randomNum();
         setIsFirstRender(false)
-        setOptions(prev => {
-            return {
-                ...prev, 
-                seed: seedNum
-            }
-        });
+        setSeedValue(seedNum);
+        setSeed(seedNum);
     }
 
     const randomNum = (): number => {
         const num: number = Math.ceil((Math.random() * 1000));
         return num
-    }
-
-    const generateData = (seedNum: number, localValue: LocalizationType, errorRate: number) => {
-        generateFakeUsers(seedNum, localValue, errorRate);
     }
 
     return (
@@ -126,8 +128,8 @@ const ToolsBar: React.FC = () => {
                     name='seed'
                     placeholder='seed number'
                     variant="outlined"
-                    value={options.seed}
-                    onChange={handleChange}
+                    value={seed}
+                    onChange={handleSeed}
                     inputMode='decimal'
                     size='small'
                 />
