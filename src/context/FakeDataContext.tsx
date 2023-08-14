@@ -20,7 +20,7 @@ type FakeDataContextType = {
     generateFakeUsers: (localization: LocalizationType, errorRate: number) => void,
     getMoreFakeUsers: (records: number) => void,
     setSeedValue: (seed: number) => void,
-    globalSeed: number
+    globalSeed: number | undefined
 }
 
 const FakeDataContext = createContext<FakeDataContextType>({
@@ -28,7 +28,7 @@ const FakeDataContext = createContext<FakeDataContextType>({
     generateFakeUsers: (localization, errorRate) => { },
     getMoreFakeUsers: (records) => { },
     setSeedValue: (seed) => { },
-    globalSeed: 0
+    globalSeed: undefined
 })
 
 const FakeDataProvider: React.FC<Props> = ({ children }) => {
@@ -37,7 +37,7 @@ const FakeDataProvider: React.FC<Props> = ({ children }) => {
         localization: 'en',
         errorRate: 0
     })
-    const [globalSeed, setGlobalSeed] = useState<number>(0)
+    const [globalSeed, setGlobalSeed] = useState<number | undefined>(undefined)
 
     faker.seed(globalSeed)
 
@@ -46,7 +46,9 @@ const FakeDataProvider: React.FC<Props> = ({ children }) => {
     }
 
     useEffect(()=>{
-        generateFakeUsers(selectedOptions.localization)
+        if(globalSeed !== undefined) {
+            generateFakeUsers(selectedOptions.localization)
+        }
     }, [globalSeed])
 
     const generateFakeUsers = (localization: LocalizationType, errorRate: number = 0) => {

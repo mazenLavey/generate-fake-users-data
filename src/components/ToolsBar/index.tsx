@@ -23,7 +23,7 @@ const ToolsBar: React.FC = () => {
     const { generateFakeUsers, fakeUsers, setSeedValue, globalSeed } = useContext(FakeDataContext);
 
     const [isFirstRender, setIsFirstRender] = useState(true);
-    const [seed, setSeed] = useState<number>(globalSeed);
+    const [seed, setSeed] = useState<number | undefined>(globalSeed);
     const [options, setOptions] = useState<Options>({
         local: 'en',
         errorPerRecord: 0
@@ -128,7 +128,7 @@ const ToolsBar: React.FC = () => {
                     name='seed'
                     placeholder='seed number'
                     variant="outlined"
-                    value={seed}
+                    value={seed? seed : ''}
                     onChange={handleSeed}
                     inputMode='decimal'
                     size='small'
