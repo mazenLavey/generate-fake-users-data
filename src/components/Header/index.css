@@ -1,0 +1,16 @@
+
+
+.Header {
+    border-bottom: 1px solid #ececec;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.Header__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.3rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}

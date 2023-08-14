@@ -1,0 +1,35 @@
+
+
+.ToolsBar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0px;
+    background-color: white;
+    border-bottom: 1px solid #e2e2e2;
+    z-index: 10;
+}
+
+@media (max-width: 575px) {
+    .ToolsBar {
+        display: flex;
+        flex-wrap: wrap;
+    }
+}
+
+.Home__img-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.Home__img {
+    width: 100%;
+    max-width: 400px;
+    opacity: 0.5;
+}
